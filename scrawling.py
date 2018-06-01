@@ -11,7 +11,8 @@ def get_index():
 
     index_url = "https://yomou.syosetu.com/search.php?&type=r&order=new&notnizi=1&p="
     index = []
-    pattern = re.compile(r'/ncode/.+')
+    tmp_index = []
+    pattern = re.compile(r'ncode/.+')
 
     for i in range(1,3):
 
@@ -19,10 +20,10 @@ def get_index():
 
         index_html = requests.get(index_url + str(i), headers=headers)
         soup = BeautifulSoup(index_html.content, "lxml")
-        index += [a.get("href") for a in soup.find_all("a") if re.search(pattern, str(a.get("href")))]
+        tmp_index += [re.search(pattern, str(a.get("href"))).group(0) for a in soup.find_all("a") if re.search(pattern, str(a.get("href")))]
 
 
-    print(index)
+    print(tmp_index)
 
 if __name__ == "__main__":
 
