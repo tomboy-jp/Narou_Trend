@@ -82,12 +82,11 @@ def get_data():
                 print(tmp)
 
                 df = df.append(tmp)
-                df = df.drop_duplicates().reset_index(drop=True)
+                df = df.drop_duplicates(subset='ncode', keep='last').reset_index(drop=True)
 
                 del tmp
                 print("count:" + str(len(df.index)))
                 print("\n")
-                print(df)
 
     print(df)
     return df
