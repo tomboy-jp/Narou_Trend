@@ -10,7 +10,8 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleW
 
 def get_data():
 
-    df = pd.DataFrame(columns=['ncode', 'title', 'point', 'word_cnt', 'start_date', 'docs'])
+    columns = ['ncode', 'title', 'point', 'word_cnt', 'start_date', 'docs']
+    df = pd.DataFrame(columns=columns)
 
     ncode_pattern = re.compile(r'ncode/.+')
     title_pattern = re.compile(r'<h1><a href="https://ncode.syosetu.com/.+?</a></h1>')
@@ -21,7 +22,7 @@ def get_data():
     tmp_index = []
     index_cnt = 1
 
-    while len(df) < 5000:
+    while len(df.index) < 2000:
 
         sleep(3)
 
@@ -37,14 +38,20 @@ def get_data():
 
         soup = BeautifulSoup(index_html.content, "lxml")
         tmp_index = [re.search(ncode_pattern, str(a.get("href"))).group(0)[6:-1] for a in soup.find_all("a") if re.search(ncode_pattern, str(a.get("href")))]
+        print(index_url)
+        print(tmp_index)
+        print("\n")
 
         index_cnt += 1
+        if index_cnt == 100:
+            index_cnt = 1
 
-        for j in tmp_index:
+        for i in tmp_index:
 
             sleep(3)
 
-            detail_url = "https://ncode.syosetu.com/novelview/infotop/ncode/" + j
+            detail_url = "https://ncode.syosetu.com/novelview/infotop/ncode/" + i
+            print(detail_url + "\n")
 
             try:
 
@@ -71,14 +78,16 @@ def get_data():
 
             if word_cnt >= 5000 and int(start_date.strftime("%Y%m%d")) > 20171231 and int(start_date.strftime("%Y%m%d")) < 20180501:
 
-                se = pd.Series([j, title, point, word_cnt, start_date, docs], index=['ncode', 'title', 'point', 'word_cnt', 'start_date', 'docs'])
-                print(se)
+                tmp = pd.DataFrame([[i, title, point, word_cnt, start_date, docs]], columns=columns)
+                print(tmp)
 
-                df = df.append(se, ignore_index=True)
-                del se
+                df = df.append(tmp)
+                df = df.drop_duplicates().reset_index(drop=True)
 
-
-        df = df.duplicated().reset_index(drop=True)
+                del tmp
+                print("count:" + str(len(df.index)))
+                print("\n")
+                print(df)
 
     print(df)
     return df
@@ -97,7 +106,7 @@ def get_docs(df=None):
         docs = ""
         page_cnt = 1
 
-        while len(docs) < 5000:
+        while len(docs) < 2000:
 
             sleep(3)
 
