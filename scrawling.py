@@ -49,8 +49,6 @@ def get_data():
             try:
 
                 detail_html = requests.get(detail_url, headers=headers)
-
-
                 detail_soup = BeautifulSoup(detail_html.content, "lxml")
 
                 title = re.sub(r'<.+?>' , '', re.search(title_pattern ,str(detail_soup.find_all("h1"))).group(0))
@@ -64,6 +62,8 @@ def get_data():
                 start_date = re.sub(r'<.+?>' , '', re.search(start_date_pattern ,str(detail_soup.find_all("tr"))).group(0))
                 start_date = datetime(int(start_date[0:4]), int(start_date[6:8]), int(start_date[9:11]), int(start_date[13:15]), int(start_date[16:18]))
 
+                docs = ""
+
 
             except:
 
@@ -71,41 +71,66 @@ def get_data():
 
             if word_cnt >= 5000 and int(start_date.strftime("%Y%m%d")) > 20171231 and int(start_date.strftime("%Y%m%d")) < 20180501:
 
-                page_cnt = 1
-                docs = ""
+                se = pd.Series([j, title, point, word_cnt, start_date, docs], index=['ncode', 'title', 'point', 'word_cnt', 'start_date', 'docs'])
+                print(se)
 
-                while len(docs) < 5000:
+                df = df.append(se, ignore_index=True)
+                del se
 
-                    sleep(3)
-
-                    novel_url = "https://ncode.syosetu.com/" + j + "/" + str(page_cnt)
-
-                    try:
-
-                        novel_html = requests.get(novel_url, headers=headers)
-
-                        novel_soup = BeautifulSoup(novel_html.content, "lxml")
-                        parsed = novel_soup.find_all("div", id ="novel_honbun")
-                        parsed = re.sub(r'<.+?>', '', str(parsed[0]))
-                        parsed = re.sub(r'(・)', '', parsed)
-                        parsed = re.sub(r'\n', '', parsed)
-                        parsed = re.sub(r'\u3000', '', parsed)
-
-                        docs += parsed
-                        page_cnt += 1
-
-                    except:
-
-                        break
-
-                if len(docs) >= 5000:
-
-                    se = pd.Series([j, title, point, word_cnt, start_date, docs], index=df.columns)
-                    print(se)
-
-                    df = df.append(se, ignore_index = True)
 
         df = df.duplicated().reset_index(drop=True)
+
+    print(df)
+    return df
+
+
+def get_docs(df=None):
+
+    if not df:
+        f = sorted(os.listdir("data"), reverse=True)[0]
+        df = pd.read_csv("data/" + f)
+
+    docs_list = []
+
+    for i in df['ncode'].values:
+
+        docs = ""
+        page_cnt = 1
+
+        while len(docs) < 5000:
+
+            sleep(3)
+
+            novel_url = "https://ncode.syosetu.com/" + i + "/" + str(page_cnt)
+
+
+            try:
+
+                novel_html = requests.get(novel_url, headers=headers)
+
+                if novel_html.status_code != 200:
+                    docs_list.append(docs)
+                    break
+
+                novel_soup = BeautifulSoup(novel_html.content, "lxml")
+                parsed = novel_soup.find_all("div", id ="novel_honbun")
+                parsed = re.sub(r'<.+?>', '', str(parsed[0]))
+                parsed = re.sub(r'(・)', '', parsed)
+                parsed = re.sub(r'\n', '', parsed)
+                parsed = re.sub(r'\u3000', '', parsed)
+
+                docs += parsed
+
+            except:
+
+                docs_list.append(docs)
+                break
+
+            page_cnt += 1
+
+        docs_list.append(docs)
+
+    df['docs'] = docs_list
 
     return df
 
@@ -120,10 +145,13 @@ def saving(df):
 
         pass
 
-    df.to_csv("data/data" + datetime.now().strftime("%Y%m%d") + ".csv")
+    df.to_csv("data/data" + datetime.now().strftime("%Y%m%d") + ".csv", index=False)
 
 
 if __name__ == "__main__":
 
     df = get_data()
+    saving(df)
+
+    df = get_docs(df)
     saving(df)
