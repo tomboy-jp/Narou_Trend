@@ -158,8 +158,8 @@ def saving(df):
 
 if __name__ == "__main__":
 
-    df = get_data()
-    saving(df)
+    # df = get_data()
+    # saving(df)
 
-    df = get_docs(df)
+    df = get_docs()
     saving(df)
