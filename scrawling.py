@@ -153,7 +153,7 @@ def saving(df):
 
         pass
 
-    df.to_csv("data/data" + datetime.now().strftime("%Y%m%d") + ".csv", index=False)
+    df.to_csv("data/data_" + datetime.now().strftime("%Y%m%d") + ".csv", index=False)
 
 
 if __name__ == "__main__":
