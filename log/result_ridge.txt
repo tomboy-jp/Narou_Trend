@@ -1,0 +1,4 @@
+Best Score: 0.009
+Test Score: 0.007
+Best Parameters:
+{'ridge__alpha': 10, 'ridge__fit_intercept': False, 'ridge__normalize': True, 'ridge__random_state': 0}

@@ -158,16 +158,7 @@ def saving(df):
 
 if __name__ == "__main__":
 
-    # df = get_data()
-    # saving(df)
-
-    # f = sorted(os.listdir("data"), reverse=True)[0]
-    # df = pd.read_csv("data/" + f)
-    #
-    # for c, i in enumerate(df['ncode'].values):
-    #     df.iloc[c,5] = 'c'
-    #
-    # print(df)
-
-    df = get_docs()
+    df = get_data()
+    saving(df)
+    df = get_docs(df)
     saving(df)
