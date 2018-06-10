@@ -98,9 +98,10 @@ def get_docs(df=None):
         f = sorted(os.listdir("data"), reverse=True)[0]
         df = pd.read_csv("data/" + f)
 
-    docs_list = []
 
-    for i in df['ncode'].values:
+    for c, i in enumerate(df['ncode'].values):
+
+        print(i)
 
         docs = ""
         page_cnt = 1
@@ -117,7 +118,7 @@ def get_docs(df=None):
                 novel_html = requests.get(novel_url, headers=headers)
 
                 if novel_html.status_code != 200:
-                    docs_list.append(docs)
+                    df.iloc[c,5] = docs
                     break
 
                 novel_soup = BeautifulSoup(novel_html.content, "lxml")
@@ -131,14 +132,13 @@ def get_docs(df=None):
 
             except:
 
-                docs_list.append(docs)
+                df.iloc[c,5] = docs
                 break
 
             page_cnt += 1
 
-        docs_list.append(docs)
+        df.iloc[c,5] = docs
 
-    df['docs'] = docs_list
 
     return df
 
@@ -160,6 +160,14 @@ if __name__ == "__main__":
 
     # df = get_data()
     # saving(df)
+
+    # f = sorted(os.listdir("data"), reverse=True)[0]
+    # df = pd.read_csv("data/" + f)
+    #
+    # for c, i in enumerate(df['ncode'].values):
+    #     df.iloc[c,5] = 'c'
+    #
+    # print(df)
 
     df = get_docs()
     saving(df)
