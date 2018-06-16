@@ -87,7 +87,7 @@ def ml_exe(df, pipe, param_grid, ml_name):
         pass
 
     with open("log/result_" + ml_name + ".txt", "w") as file:
-        print("Mean Absolute Error(: {:.3f}".format(mean_absolute_error(y_test, y_pred)), file=file)
+        print("Mean Absolute Error: {:.3f}".format(mean_absolute_error(y_test, y_pred)), file=file)
         print("Best Parameters:\n{}".format(grid.best_params_), file=file)
 
 
