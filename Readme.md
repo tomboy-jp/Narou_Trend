@@ -50,7 +50,7 @@ $ python hist_maker.py
 ![分布図](https://raw.githubusercontent.com/tomboy-jp/Narou_Trend/master/result/point_graph.png "実行結果")
 
 見事なまでのべき乗分布です。  
-この場合、グラフだと逆に分かりにくいので、数字を見ていきましょう。
+この場合、グラフだと逆に分かりにくいので、数字を見ていきましょう。  
 左のカラムがポイントで右のカラムが作品数です。  
 
 ```
