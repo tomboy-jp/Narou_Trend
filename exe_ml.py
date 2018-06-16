@@ -9,6 +9,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_absolute_error
 
 
 tagger = MeCab.Tagger('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
@@ -78,7 +79,7 @@ def ml_exe(df, pipe, param_grid, ml_name):
     with open("models/" + ml_name +"_model.pickle", "wb") as f:
         pickle.dump(grid.best_estimator_.named_steps[ml_name], f)
 
-    test_score = grid.best_estimator_.score(X_test, y_test)
+    y_pred = grid.best_estimator_.predict(X_test)
 
     try:
         os.mkdir("log")
@@ -86,8 +87,7 @@ def ml_exe(df, pipe, param_grid, ml_name):
         pass
 
     with open("log/result_" + ml_name + ".txt", "w") as file:
-        print("Best Score: {:.3f}".format(grid.best_score_), file=file)
-        print("Test Score: {:.3f}".format(test_score), file=file)
+        print("Mean Absolute Error(: {:.3f}".format(mean_absolute_error(y_test, y_pred)), file=file)
         print("Best Parameters:\n{}".format(grid.best_params_), file=file)
 
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     df = df.dropna().reset_index(drop=True)
     df['corpus'] = [to_corpus(str(docs)) for docs in df['docs'].values]
 
-    param_grid = {'ridge__alpha': [10** x for x in range(-5, 5)],
+    param_grid = {'ridge__alpha': [10**x for x in range(-5, 5)],
               'ridge__fit_intercept': [True, False],
               'ridge__normalize': [True, False],
               'ridge__random_state': [0]
